@@ -1,0 +1,127 @@
+# $Id$
+#
+# Russian translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  redirect_count.admin.inc: n/a
+#  redirect_count.module: n/a
+#  redirect_count.install: n/a
+#  redirect_count.info: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2012-03-03 23:13+0200\n"
+"PO-Revision-Date: 2012-03-03 23:13+0200\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Russian <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+
+#: redirect_count.admin.inc:18
+msgid "Ip`s"
+msgstr "IP адреса"
+
+#: redirect_count.admin.inc:19
+msgid "Enter bot ip`s or ip`s that should not be displayed in statistics page"
+msgstr "Введите IP-адреса ботов, которые не должны отображаться на странице статистики"
+
+#: redirect_count.admin.inc:24
+msgid "Save"
+msgstr "Сохранить"
+
+#: redirect_count.module:87;114
+msgid "Link"
+msgstr "Ссылка"
+
+#: redirect_count.module:87
+msgid "Clicks"
+msgstr "Переходы"
+
+#: redirect_count.module:87
+msgid "Actions"
+msgstr "Действия"
+
+#: redirect_count.module:92
+msgid "Details"
+msgstr "Подробности"
+
+#: redirect_count.module:115
+msgid "Date"
+msgstr "Дата"
+
+#: redirect_count.module:116
+msgid "Host"
+msgstr "Хост"
+
+#: redirect_count.module:135
+msgid "Today"
+msgstr "Сегодня"
+
+#: redirect_count.module:138
+msgid "Yesterday"
+msgstr "Вчера"
+
+#: redirect_count.module:156
+msgid "Consider ip from the bot list"
+msgstr "Учитывать IP  адреса поисковых роботов"
+
+#: redirect_count.module:65
+msgid "redirect_count"
+msgstr "подсчет переходов"
+
+#: redirect_count.module:65
+msgid "Error insert statistic data, url - !url."
+msgstr "Ошибка при сохранении статистики, url - !url."
+
+#: redirect_count.module:12
+msgid "view click statistic"
+msgstr "просмотр статистики по кликам"
+
+#: redirect_count.module:24;29;35
+msgid "Link clicks statistics"
+msgstr "Статистика переходов по ссылке"
+
+#: redirect_count.module:25
+msgid "Click statistics for links."
+msgstr "Статистика переходов для ссылки."
+
+#: redirect_count.module:42
+msgid "Edit bot list"
+msgstr "Редактровать список ботов"
+
+#: redirect_count.install:11
+msgid "The primary identifier for an click id."
+msgstr "Главный идентификатор для перехода."
+
+#: redirect_count.install:16
+msgid "The clicked link."
+msgstr "Ссылка, на по которой перешли."
+
+#: redirect_count.install:24
+msgid "Internal path to page visited."
+msgstr "Откуда осуществлен переход."
+
+#: redirect_count.install:27
+msgid "The number of clicks."
+msgstr "Количество кликов."
+
+#: redirect_count.install:33
+msgid "User ip adress."
+msgstr "Пользовательский IP."
+
+#: redirect_count.info:0
+msgid "Redirect count"
+msgstr "Статистика переходов по внешней ссылке"
+
+#: redirect_count.info:0
+msgid "Count link clicks."
+msgstr "Подсчитывает переходы по внешней ссылке."
+
+#: redirect_count.info:0
+msgid "Statistics"
+msgstr "Статистика"
+

@@ -1,0 +1,248 @@
+<?php
+
+/**
+ * @file
+ * Count link clicks.
+ */
+
+/**
+ * Implementation of hook_perm().
+ */
+function redirect_count_perm() {
+  return  array('view click statistic, administer click statistic');
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function redirect_count_menu() {
+  $items = array();
+
+  $items['admin/reports/redirectcount'] = array(
+    'page callback' => 'view_click_statistic',
+    'access arguments' => array('view click statistic'),
+    'title' => 'Link clicks statistics', 
+    'description' => 'Click statistics for links.',
+  );
+  $items['admin/reports/redirectcount/viewstatistic'] = array(
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => 'Link clicks statistics', 
+    'weight' => -1,
+  );
+  $items['admin/reports/redirectcount/%'] = array(
+    'page callback' => 'view_click_statistic_item',
+    'access arguments' => array('view click statistic'),
+    'title' => 'Link clicks statistics', 
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/settings/redirectcount'] = array(
+    'page callback' => 'edit_bot_list',
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer click statistic'),
+    'title' => 'Edit bot list', 
+    'weight' => 1,
+    'file' => 'redirect_count.admin.inc'
+  );
+  // count clicks callback
+  $items['redirectcount/%'] = array(
+    'page callback' => 'redirect_count',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'page arguments' => array(1),
+  ); 
+  return $items;
+}
+
+
+/**
+ * Menu callback, redirect to url and write record in database 
+ */
+
+function _redirect_count($url){
+  $url = str_replace('..', '/', $url);
+  if(isset($_POST['hash'])){
+    $hash = $_POST['hash'];
+    }
+  //print_r( parse_url(request_uri()));
+  //print_r("<br /><br />".$_GET['q']."<br />");
+  print_r(request_uri());
+  $ip = ip_address();
+  $path = $_SERVER['HTTP_REFERER'];
+  drupal_add_js('
+  $(document).ready(function(){
+    $("a.with-hash").click(function(){
+      var hash = window.location.hash;
+      if(hash != ""){
+	$.ajax({
+	  url: "redirectcount/",
+	  dateType: "POST",
+	  data: "hash=" + hash,
+	  success: function(data){
+	    alert(data);
+	    }
+	  
+	  })
+	}
+      });
+    });
+  ','inline');
+
+  $sql = "INSERT INTO {redirect_count_statistic} (link, path, timestamp, ip) VALUES ('%s', '%s', %d, '%s')";
+  //if(!db_query($sql, $url, $path, time(), $ip)){
+    //watchdog('redirect_count','Error insert statistic data, url - !url.', array('!url' => $url), WATCHDOG_ERROR, $path);
+  //}
+  
+  //drupal_goto($url);
+  print_r(parse_url('http://google.com#afAKDNCFASD'));
+  return spl('http://google.com#afAKDNCFASD', 1).$url.'#'.$hash;
+}
+
+
+
+/**
+ * Menu callback, redirect to url and write record in database 
+ */
+function redirect_count($url){
+  $url = str_replace('..', '/', $url);
+  $ip = ip_address();
+  $path = $_SERVER['HTTP_REFERER'];
+  $sql = "INSERT INTO {redirect_count_statistic} (link, path, timestamp, ip) VALUES ('%s', '%s', %d, '%s')";
+  if(!db_query($sql, $url, $path, time(), $ip)){
+    watchdog('redirect_count','Error insert statistic data, url - !url.', array('!url' => $url), WATCHDOG_ERROR, $path);
+  }
+  drupal_goto($url);
+}
+
+/**
+ * Helper function to prepare count link
+ * 
+ * "statistic prepare link"
+ */
+function spl($url){
+
+  $url = str_replace('/', '..', $url);
+  return 'redirectcount/'.$url;
+}
+
+/**
+ * Wrapper on l() function, prepere redirect link to
+ * output.
+ */
+/*
+function splw($data , $url, $html = FALSE){
+  //parse_url($url);
+  $parsed_url = parse_url($url);
+  //$query = array();
+  $options = array();
+  if($parsed_url['query']){
+    $options['query'] = $parsed_url['query']); 
+  }
+  
+  if($parsed_url['fragment']){
+    $options['fragment'] => $parsed_url['fragment']);
+    $options['attributes'] = array('class' => 'with-hash');
+  }
+  
+  $options['html'] = $html;
+  return l($data, $url, $options); 
+}
+*/
+/**
+ * Menu callback, view click statictics 
+ */
+function view_click_statistic(){
+  $bot_list_ips = "'".implode("','", variable_get('bot_list_ip', array()))."'";
+  $bot_list_ips = str_replace(array("\r\n", "\t", "\s", "\n", "\r"), array('', '', '', '', ''), $bot_list_ips);
+  $sql = "SELECT DISTINCT link, COUNT(link) AS count FROM {redirect_count_statistic} WHERE ip NOT IN ($bot_list_ips) GROUP BY link"; 
+  $header = array(array('data'=>t('Link'), 'field' => 'link'), array('data'=>t('Clicks'), 'field' => 'count'), t('Actions')); 
+  $result = db_query($sql.tablesort_sql($header));
+  $output = "";
+  $rows = array();
+  while($data = db_fetch_array($result)){
+   $url = l(t('Details'), 'admin/reports/redirectcount/'.spl($data['link']));
+   $rows[] = array($data['link'],$data['count'], $url); 
+  }
+  $output .= theme('table', $header, $rows);
+  return $output;
+}
+
+/**
+ * Menu callback, view click statictics for current item
+ */
+function view_click_statistic_item($url){
+  $url = str_replace('..', '/', $url);
+
+  $sql = "SELECT link, ip, timestamp FROM {redirect_count_statistic} WHERE link = '$url'"; 
+
+  if(get_consider_bot_ip() != 1){
+  	  $bot_list_ips = variable_get('bot_list_ip', array());
+	  $bot_list_ips = "'".implode("','", $bot_list_ips)."'";
+	  $bot_list_ips = str_replace(array("\r\n", "\t", "\s", "\n", "\r"), array('', '', '', '', ''), $bot_list_ips);
+	  $sql .= " AND ip NOT IN ($bot_list_ips)";
+  }
+  $header = array(
+	array('data'=>t('Link'), 'field' => 'link'), 
+	array('data'=>t('Date'), 'field' => 'timestamp', 'sort' => 'desc'), 
+	array('data'=>t('Host')),
+  ); 
+  $result = db_query($sql.tablesort_sql($header));
+  $output = "";
+  $rows = array();
+  while($data = db_fetch_array($result)){
+	$now = time();  
+	$date = $data['timestamp'];
+	$today = format_date($now, 'custom', 'Y|n|j');
+	$created = format_date($date, 'custom', 'Y|n|j');	 
+	global $user;
+	if (variable_get('configurable_timezones', 1) && $user->uid && strlen($user->timezone)) {
+	  $timezone = $user->timezone;
+	}
+	else {
+	  $timezone = variable_get('date_default_timezone', 0);
+	}	 
+	$yesterday = date("Y|n|j", $now - (86400) + $timezone);	 
+	if($created == $today) {
+	  $date = t('Today');
+	}
+	elseif ($created == $yesterday) {
+	  $date = t('Yesterday');
+	}
+	else {
+	  $date = format_date($date, 'custom', 'Y F d');
+	}
+   $rows[] = array($data['link'],$date,$data['ip']); 
+  }
+  $output .= drupal_get_form('checkbox_form');
+  $output .= theme('table', $header, $rows);
+  return $output;
+}
+
+/**
+ * Form builder, return single checkbox in statistycs page
+ */
+function checkbox_form(&$form_state){
+  $form['checkbox'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Consider ip from the bot list'),
+    '#default_value' => get_consider_bot_ip(),
+    '#return_value' => 1,
+    '#attributes' => array('onChange'=> 'document.forms["checkbox-form"].submit();')
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#title' => 'save',
+    '#attributes' => array('style'=> 'display:none;')
+  );
+  return $form;
+}
+
+function checkbox_form_submit($form, &$form_state){
+  $_SESSION['consider_bot_ip'] = check_plain($form_state['values']['checkbox']);
+}
+
+/**
+ * Helper function, return session value to show or not bot in statistics page
+ */
+function get_consider_bot_ip(){
+  return (isset($_SESSION['consider_bot_ip']) && $_SESSION['consider_bot_ip'] == 1) ? 1 : 0;
+}

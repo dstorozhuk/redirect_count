@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * Implementation of hook_install().
+ */
+function redirect_count_schema() {
+
+   $schema['redirect_count_statistic'] = array(
+    'fields' => array(
+      'clickid' => array(
+        'description' => t('The primary identifier for an click id.'),
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'link' => array(
+        'description' => t('The clicked link.'),
+        'type' => 'text',
+        'not null' => FALSE,
+      ),
+      'path' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+        'description' => t('Internal path to page visited.'),
+      ),
+      'timestamp' => array(
+        'description' => t('The number of clicks.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'ip' => array(
+        'description' => t('User ip adress.'),
+        'type' => 'varchar',
+        'length' => 150,
+        'not null' => FALSE,
+      ),      
+    ),
+    'primary key' => array('clickid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function redirect_count_install() {
+  drupal_install_schema('redirect_count');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function redirect_count_uninstall() {
+  drupal_uninstall_schema('redirect_count');
+  variable_det('bot_list_ip');
+}
